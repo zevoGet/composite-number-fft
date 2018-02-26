@@ -7,3 +7,6 @@ This is the result of my learning,due to my passion of the NES game. First I wan
 After learning FFT , I find that Fourier is really amazing person and the challenge fits me, so I show my learning in this website.
 
 If you like the code , I hope the code can help
+
+#### my artile about my know of the fft（in Chinese）
+https://www.jianshu.com/p/8e2754370e76
