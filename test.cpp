@@ -1,4 +1,4 @@
-#include "test/test.h"
+#include "./test/test.h"
 #include "common.h"
 #include<iostream>
 using namespace std;
@@ -16,7 +16,7 @@ void  mminit(void *a,void *b){
 
 /**
 test 2d fft
-���Զ�άfft
+²âÊÔ¶þÎ¬fft
 */
 void testfft2d(){
 	int w = 3;
