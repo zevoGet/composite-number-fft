@@ -1,6 +1,6 @@
 #ifndef test_projfft
 #define test_projfft
-#include "common.h"
+#include "./../common.h"
 #include <time.h>
 #include <chrono>
 /*get timestamp*/
