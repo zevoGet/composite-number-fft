@@ -9,4 +9,4 @@ After learning FFT , I find that Fourier is really amazing person and the challe
 If you like the code , I hope the code can help
 
 #### my artile about my know of the fft（in Chinese）
-https://www.jianshu.com/p/8e2754370e76
+大致内容简介 参照 [wiki](https://github.com/zevoGet/composite-number-fft/wiki/preview)
