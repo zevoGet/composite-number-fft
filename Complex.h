@@ -35,13 +35,16 @@ public:
 	void operator +=(Complexf c1);
 	void operator *=(Complexf c1);
 	void setData(Complexf c1);
+	void setSelf(const Complexf &c1);
+	void toStrings();
 	void show();
-
+	float abs();
+	void init();
 	//static void (* test)();
 
 
 
-
+	
 
 	//函数入口地址
 	//void (*init)(void *,void *);

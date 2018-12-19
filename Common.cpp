@@ -21,6 +21,8 @@ void cmwnk(Complexf *cm, u_int N){
 
 
 
+
+
 /*
 ----------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------
@@ -39,7 +41,7 @@ u_int* getPrime(int N){
 	u_int tepN = N;
 	u_int *temp = (u_int *) malloc(sizeof(temp) * CN_num);
 
-	ffor(CN_num){
+	for (int i = 0; i < CN_num;i++){
 		temp[i] = 0;
 	}
 
@@ -58,7 +60,7 @@ u_int* getPrime(int N){
 	u_int* res = new u_int[k+1];
 	res[0] = k;
 	k = 1;
-	ffor(CN_num){
+	for (int i = 0; i < CN_num; i++){
 		while(temp[i]>0) {
 			res[k++] = CN_prime[i];
 			--temp[i];
@@ -80,27 +82,27 @@ void CN_reverse(Complexf *cm,u_int *pN,u_int N){
 	u_int *temp = new u_int[N];
 	Complexf *tmp =new Complexf[N];
 
-	for(int i=0;i<N;i++){
+	for(u_int i=0;i<N;i++){
 		temp[i] = 0;
 		tmp[i].setData(cm[i]);
 	}
 	u_int idx,md,t;
 	idx = 1;
 	t = 1;
-	for(int i= 1;i<pN[0]+1;i++){
+	for(u_int i= 1;i<pN[0]+1;i++){
 		idx *= pN[i];
 		md = N/idx;
-		for(int k=t;k<idx;k++){
+		for(u_int k=t;k<idx;k++){
 			temp[k] = temp[k-t]+md;
 		}
 		t = idx;
 	}
 
-	for(int i=0;i<N;i++){
-		cm[i] = tmp[temp[i]];
-		std::cout<<cm[i].getReal()<<"  ";
+	for(u_int i=0;i<N;i++){
+		cm[i].setData(tmp[temp[i]]);
+		//std::cout<<cm[i].getReal()<<"  ";
 	}
-	std::cout<<" reverse end\n";
+	//std::cout<<" reverse end\n";
 	//删除临时复数数组
 	delete[] tmp;
 
@@ -108,31 +110,89 @@ void CN_reverse(Complexf *cm,u_int *pN,u_int N){
 	delete[] temp;
 }
 
+
+
 //base mathod
 /*
 	first X[i] and x[i] are complex
 	X[k] = sum(wnk[i*k]*x(i))  --i=0,N-1
 	wnk[j] =[cos(2*pi *j)/N]  -- j=0,N-1
 */
-void dft(Complexf *cm,Complexf* res,Complexf* wnk,u_int n,u_int *nk){
+void dft(Complexf *cm,Complexf* wnk,u_int n){
+	Complexf *res = (Complexf *)malloc(sizeof(Complexf) * n);
 	Complexf temp = Complexf();
 	Complexf temp1 = Complexf();
 
-	std::cout<<"-------------------------------------------------\n  ";
+	//std::cout<<"-------------------------------------------------\n  ";
 	//k
 	for(int i=0;i<n;i++){
 		temp1.setReal(0);
 		temp1.setIm(0);
-		std::cout<<"\n  ";
+		//std::cout<<"\n  ";
+		temp1 +=cm[0];
+		for(int j=1;j<n;j++)
+		{
+			temp.setData(cm[j]);
+			temp *= wnk[(i*j)%n];
+			temp1 += temp;
+		}
+		//std::cout<<"\n";
+		res[i].setData(temp1);
+	}
+	for(int i=0;i<n;i++){
+		cm[i].setData(res[i]);
+	}
+	free(res);
+
+
+}
+
+
+/*
+cm    --> input array
+res   --> ouput array
+wnk   --> common array
+n     --> length of cm
+nk    --> number array of the wnk's index
+*/
+void dft(Complexf *cm,Complexf* res,Complexf* wnk,u_int n,u_int *nk){
+	Complexf temp = Complexf();
+	Complexf temp1 = Complexf();
+
+	//std::cout<<"-------------------------------------------------\n  ";
+	//k
+	for(int i=0;i<n;i++){
+		temp1.setReal(0);
+		temp1.setIm(0);
+		//temp1 +=cm[0];
 		//n
 		for(int j=0;j<n;j++)
 		{
 			temp.setData(cm[j]);
-			temp *= wnk[nk[j]];
-			std::cout<<nk[j]<<"  ";
+			temp *= wnk[nk[(i*j)%n]];
+			/*std::cout<<"\n------  "<<  nk[(i*j)%n+n] <<"   "<<nk[(i*j)%n]<<"  ";*/
 			temp1 += temp;
 		}
-		std::cout<<"\n";
+		res[i].setData(temp1);
+	}
+}
+
+
+void fast_compute(Complexf *cm,Complexf* res,Complexf* wnk,u_int n,u_int *nk){
+	Complexf temp = Complexf();
+	Complexf temp1 = Complexf();
+
+	//k
+	for(int i=0;i<n;i++){
+		temp1.setReal(0);
+		temp1.setIm(0);
+		//n
+		for(int j=0;j<n;j++)
+		{
+			temp.setData(cm[j]);
+			temp *= wnk[(j *(nk[(i)%n]))%nk[n]];
+			temp1 += temp;
+		}
 		res[i].setData(temp1);
 	}
 }
@@ -145,35 +205,59 @@ void dft(Complexf *cm,Complexf* res,Complexf* wnk,u_int n,u_int *nk){
 */
 void fft_main_CN(Complexf *cm,Complexf *wnk,int N,u_int *prim){
 	int nL = prim[0];
+	if(nL==1) 
+	{dft(cm,wnk,N);return;}
+
 	int M = nL+1;
 
 	u_int *nk = new u_int[N];
 	Complexf *res = new Complexf[N];
 	Complexf *tempf = new Complexf[N];
+	Complexf tempmm = Complexf();
 
-	u_int cn,md,ni,mp;
+
+	u_int cn,md,ni,mp,nidx;
 
 	cn = 1;
 	ni = 1;
+	//current level in nk
 	for(int i=1;i<M;i++){
+		
 		cn *= prim[i];
+
+
 		md  = N /cn;
+
+		//------------
 		mp = prim[i];
-		//for(int j=0;j<md;j++){
-			for(int m=0;m<N;m+=cn){
+
+		//for fast compute
+		nk[mp] = N;
+
+		for(int m=0;m<N;m+=cn){
+			for(int j=0;j<ni;j++){
+				//get a compute needed array
 				for(int k=0;k<mp;k++){
-					tempf[m+k].setData(cm[m+k*md]);
-					nk[k]=(((ni*k+m)%cn)* md)%N;
+					nidx = k*ni+j+m;
+					tempf[k].setData(cm[nidx]);
+					nk[k]=((nidx%cn)* md)%N;
+					//std::cout<<"\n================="<<nidx<<"    "<<nk[k] <<"    "<<wnk[nk[k]].getReal()<<"    "<<wnk[nk[k]].getIm()<<" -----;\n";
 				}
 				
-				dft(tempf,res,wnk,mp,nk);
+				//first do a DFT computing then continue the fast computing
+				if(i==1){ dft(tempf,res,wnk,mp,nk); }
+				else{ fast_compute(tempf,res,wnk,mp,nk); }
+				
 
+				//rewrite the array
 				for(int k=0;k<mp;k++){
-					cm[m+k].setData(res[m+k*md]);
+					nidx = k*ni+j+m;
+					//std::cout<<"\n================="<<nidx<<"    "<<nk[k] <<" -----;\n";
+					cm[nidx].setData(res[k]);
 				}
 				
 			}
-		//}
+		}
 		ni = cn;
 	}
 
@@ -197,9 +281,21 @@ void fft_CN(Complexf *cm,int N){
 	fft_main_CN(cm,cmm,N,prim);
 
 	delete [] cmm;
+	prim = nullptr;
 }
 
+void ifft_CN(Complexf *cm,int N){
+	for(int i=0;i<N;i++){
+		cm[i].setIm(-cm[i].getIm());
+	}
 
+	fft_CN(cm,N);
+
+	for(int i=0;i<N;i++){
+		cm[i].setReal(cm[i].getReal() /N );
+		cm[i].setIm( - cm[i].getIm() / N);
+	}
+}
 
 /*
 for N are no power of 2 
@@ -218,8 +314,9 @@ For N is the power of 2;
 too special
 start
 */
-u_int log2(u_int n){
+u_int log2a(u_int n){
 	u_int temp = n;
+
 	u_int k = 0;
 	while(true){
 		temp = temp >> 1 ;
@@ -234,7 +331,7 @@ u_int log2(u_int n){
 void bitReverse(Complexf *cm,u_int N){
 	u_int temp,idx;
 	Complexf *res = (Complexf *)malloc(sizeof(Complexf) * N);
-	u_int L = log2(N);
+	u_int L = log2a(N);
 	//std::printf("bit start %d\n",L);
 	Complexf tpcm = Complexf();
 	for(u_int i=0;i<N;i++)
@@ -266,7 +363,7 @@ while size is the power of 2;
 */
 void fft_main_base2(Complexf *cm,int N,Complexf *wnk){
 	
-	int m = log2(N);
+	int m = log2a(N);
 
 	Complexf temp = Complexf();
 	Complexf temp2 = Complexf();
@@ -306,18 +403,6 @@ void fft_main_base2(Complexf *cm,int N,Complexf *wnk){
 				temp *= wnk[wnid2];
 				cm[nd].setData( temp2);
 				cm[nd] += temp;
-				/*if(nd==7) 
-					{
-						std::cout<<"id1 = "<< wnk[wnid2].getReal()<<"   id2 = "<<wnk[wnid2].getIm()<<"\n";
-				
-						std::cout<<" k=  "<<k<< "   "<<  cm[k].getIm() <<"      nk = "<<nd << "  "<<cm[nd].getIm()<<std::endl;}*/
-
-				//std::cout<<"id1 = "<< wnid2<<"    "<<wnk[wnid2].getReal()<<"    " <<wnk[wnid2].getIm()<<"\n";
-				///*if(k==0)
-				//	{
-				//		std::cout<<"    000000    "<<cm[0].getReal()<<std::endl;
-				//}*/
-				//std::cout<<" k=  "<<k<< "   "<<  cm[k].getIm() <<"      nk = "<<nd << "  "<<cm[nd].getIm()<<std::endl;
 			}
 		
 		}
@@ -360,6 +445,138 @@ end
 ---------------------------------------------------------------------------------
 =================================================================================
 */
+
+
+
+/*
+
+fft for 2d
+include shift
+fft
+
+*/
+
+void swap(Complexf *v1, Complexf *v2)
+{
+    Complexf tmp = *v1;
+    *v1 = *v2;
+    *v2 = tmp;
+}
+
+
+/** 
+* move to center
+*/
+void fft_2d_shift(Complexf *cm,u_int n){
+	//int n = w* h;
+	int halfp ;
+	Complexf temph=Complexf();
+	if(n%2==0){ 
+		halfp = n/2;
+		for(int i=0;i<halfp;i++){
+			swap(&cm[i],&cm[i+halfp]);
+		}
+	}
+	else{ 
+		halfp = (n-1)/2;
+		temph.setData(cm[0]);
+		for(int i=0;i<halfp;i++){
+				//src = i*w+j;
+			cm[i].setData(cm[i+halfp +1]);
+			cm[i+halfp +1].setData(cm[i+1]);
+		}
+		cm[halfp].setData(temph);
+	}
+}
+
+/** 
+*/
+void fft_2d_unshift(Complexf *cm, u_int n){
+	//int n = w* h;
+	int halfp;
+	Complexf temph = Complexf();
+	if (n % 2 == 0){
+		halfp = n / 2;
+		for (int i = 0; i<halfp; i++){
+			swap(&cm[i], &cm[i + halfp]);
+		}
+	}
+	else{
+		halfp = (n - 1) / 2;
+		temph.setData(cm[n-1]);
+
+		for (int i = n-1; i>=halfp; i--){
+			cm[i].setData(cm[i-halfp-1]);
+			cm[i - halfp - 1].setData(cm[i-1]);
+		}
+		cm[halfp].setData(temph);
+	}
+}
+
+void fft_2d(Complexf *cm,u_int w,u_int h){
+	for(int i=0;i<h;i++){
+		fft_CN(cm,w);
+		cm = cm+w;
+	}
+	cm = cm -w*h;
+	Complexf *temph = (Complexf *)malloc(sizeof(Complexf)* h);
+	for(int i=0;i<w;i++){
+		for(int j=0;j<h;j++){
+			temph[j].setData(cm[j*w + i]);
+		}
+		fft_CN(temph,h);
+
+		for(int j=0;j<h;j++){
+			cm[j*w + i].setData(temph[j]);
+		}
+	}
+	free(temph);
+	
+	fft_2d_shift(cm, w*h);
+}
+
+
+
+
+
+void ifft_2d(Complexf *cm,u_int w,u_int h){
+	
+	fft_2d_unshift(cm, w*h);
+
+	Complexf *temph = (Complexf *)malloc(sizeof(Complexf)* h);
+	for (int i = 0; i<w; i++){
+		for (int j = 0; j<h; j++){
+			temph[j].setData(cm[j*w + i]);
+		}
+		ifft_CN(temph, h);
+
+		for (int j = 0; j<h; j++){
+			cm[j*w + i].setData(temph[j]);
+		}
+	}
+	free(temph);
+	for (int i = 0; i<h; i++){
+		ifft_CN(cm, w);
+		cm = cm + w;
+	}
+	cm = cm - w*h;
+	/*for (int i = 0; i<h; i++){
+		for (int j = 0; j<w; j++)
+			cm[i*w + j].setIm(-cm[i*w + j].getIm());
+	};
+
+	fft_2d(cm, w, h);
+
+	int N = w * h;
+	for (int i = 0; i<h; i++){
+		for (int j = 0; j<w; j++){
+			cm[i*w + j].setReal(cm[i*w + j].getReal()/N);
+			cm[i*w + j].setIm(-cm[i*w + j].getIm()/N);
+		}
+	};*/
+}
+
+
 
 
 

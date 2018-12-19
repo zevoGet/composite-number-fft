@@ -1,6 +1,8 @@
 #include "Complex.h"
+#include<cmath>
 #include <stdio.h>
 	void Complexf::setReal(float real1){
+		
 		real = real1;
 	};
 	void Complexf::setIm(float im1){
@@ -36,22 +38,11 @@
 		real = c1.getReal();
 		im = c1.getIm();
 	}
-	/*void Complexf::operator =(Complexf c1){
-		real = c1.getReal();
-		im = c1.getIm();
-	}*/
-	/*Complexf Complexf::operator *(Complexf c1){
-		Complexf c = Complexf();
-		c.setReal(real);
-		c.setIm(im);
-		c *= c1;
-		return c;
-	}*/
 
-	/*void aaa::show(){
-	
-	};
-
-	void aaa::getb(){
-	
-	}*/
+	void Complexf::toStrings(){
+		real = -real;
+		im = -im;
+	}
+	float Complexf::abs(){
+		return sqrt(real * real + im * im);
+	}

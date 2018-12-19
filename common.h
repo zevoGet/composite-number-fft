@@ -1,7 +1,7 @@
 #ifndef __Fourier_tool_
 #define __Fourier_tool_
 
-
+#include "Complex.h"
 //#ifndef Endian
 //	bool fun(){
 //		union TT{
@@ -23,7 +23,7 @@ typedef  unsigned int u_int;
 typedef  unsigned short u_short;
 typedef  unsigned char u_char;
 
-static u_int x = 0x0;
+//static u_int x = 0x0;
 
 #ifdef __cplusplus
 extern "C"{
@@ -34,7 +34,8 @@ extern "C"{
 	*/
 	void fft_base2(Complexf *cm,int N);
 
-	u_int log2(u_int n);
+	/*just return the floor num of log*/
+	u_int log2a(u_int n);
 
 	void ifft_base2(Complexf *cm,int N);
 
@@ -42,10 +43,33 @@ extern "C"{
 	u_int *getPrime(int N);
 	void fft_CN(Complexf *cm,int N);
 	void ifft_CN(Complexf *cm,int N);
+	void CN_reverse(Complexf *cm, u_int *pN, u_int N);
 	/*void bitVerbose(Complexf *cm,int N);*/
 	/*
 	type code here
 	*/
+
+
+	/*
+	fft 2d shift
+	*/
+	void fft_2d_shift(Complexf* cm,u_int n);
+	/**
+	fft 2d unshift
+	*/
+	void fft_2d_unshift(Complexf* cm, u_int n);
+
+
+	void fft_2d(Complexf *cm,u_int w,u_int h);
+	void ifft_2d(Complexf *cm,u_int w,u_int h);
+
+	/*
+		test
+	*/
+	void dft(Complexf *cm,Complexf* res,Complexf* wnk,u_int n,u_int *nk);
+	void test_dft(Complexf *cm,u_int N);
+
+
 #ifdef __cplusplus
 }
 #endif
