@@ -10,3 +10,6 @@ If you like the code , I hope the code can help
 
 #### my artile about my know of the fft（in Chinese）
 大致内容简介 参照 [wiki](https://github.com/zevoGet/composite-number-fft/wiki/preview)
+
+# 2019.3.21  update
+add normalize fft,input args can be any length
