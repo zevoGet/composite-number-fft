@@ -68,7 +68,10 @@ extern "C"{
 	*/
 	void dft(Complexf *cm,Complexf* res,Complexf* wnk,u_int n,u_int *nk);
 	void test_dft(Complexf *cm,u_int N);
-
+	
+	/***/
+	void fft_normal(Complexf *cm, int N);
+	void ifft_normal(Complexf *cm, int N);
 
 #ifdef __cplusplus
 }
