@@ -90,6 +90,9 @@ int main(){
 	test_fft2d_shift();
 	testfft2d();
 	
+	
+	
+	test_normal_fft();
 	return 0;
 }
 
