@@ -29,5 +29,6 @@ void test_fft2d_shift();
 
 /*test fft base on CN*/
 void test_fft_CN();
-
+/**test fft_normal */
+void test_normal_fft();
 #endif
