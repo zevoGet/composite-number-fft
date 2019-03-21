@@ -9,7 +9,7 @@ int CN_prime[] = {2,3,5,7,11,13,17,19};
 int CN_num = 8;
 
 
-//Ğı×ªÒò×Ó ÀûÓÃÖÜÆÚĞÔ£¬Ö»¼ÆËãÒ»´Î--Í¨ÓÃ
+//æ—‹è½¬å› å­ åˆ©ç”¨å‘¨æœŸæ€§ï¼Œåªè®¡ç®—ä¸€æ¬¡--é€šç”¨
 void cmwnk(Complexf *cm, u_int N){
 	for(int i=0;i<N;i++){
 		cm[i].setReal(cos( 2 * PI * i / N));
@@ -76,7 +76,7 @@ u_int* getPrime(int N){
 }
 
 /*
-	ºÏÊıbit reverse,O(N)
+	åˆæ•°bit reverse,O(N)
 */
 void CN_reverse(Complexf *cm,u_int *pN,u_int N){
 	u_int *temp = new u_int[N];
@@ -103,10 +103,10 @@ void CN_reverse(Complexf *cm,u_int *pN,u_int N){
 		//std::cout<<cm[i].getReal()<<"  ";
 	}
 	//std::cout<<" reverse end\n";
-	//É¾³ıÁÙÊ±¸´ÊıÊı×é
+	//åˆ é™¤ä¸´æ—¶å¤æ•°æ•°ç»„
 	delete[] tmp;
 
-	//É¾³ıÁÙÊ±ÏÂ±êÊı×é
+	//åˆ é™¤ä¸´æ—¶ä¸‹æ ‡æ•°ç»„
 	delete[] temp;
 }
 
@@ -327,7 +327,7 @@ u_int log2a(u_int n){
 	return k;
 };
 
-//·­×ª£¬DIT
+//ç¿»è½¬ï¼ŒDIT
 void bitReverse(Complexf *cm,u_int N){
 	u_int temp,idx;
 	Complexf *res = (Complexf *)malloc(sizeof(Complexf) * N);
@@ -369,12 +369,12 @@ void fft_main_base2(Complexf *cm,int N,Complexf *wnk){
 	Complexf temp2 = Complexf();
 	u_int nd,cn,pn,ni,wnid1,wnid2;
 
-	//¼¶Êı£¬logN,cn means current is in which level.
+	//çº§æ•°ï¼ŒlogN,cn means current is in which level.
 	for(int i=0;i<m;i++){
 		cn = 2 << i;
 		ni = cn / 2;
 		pn = N / ni;
-		//Ã¿Ò»¼¶¶ÔÓ¦µã
+		//æ¯ä¸€çº§å¯¹åº”ç‚¹
 		for(int j=0;j<ni;j++){
 			//std::cout<<"jjjj--------------------------------------------------\n";
 			/*
@@ -407,7 +407,7 @@ void fft_main_base2(Complexf *cm,int N,Complexf *wnk){
 		
 		}
 	
-	}//ÀíÂÛ×ÜÊ±¼ä = M * pn * 2 * N / cn  =   N *logN
+	}//ç†è®ºæ€»æ—¶é—´ = M * pn * 2 * N / cn  =   N *logN
 	/*if(wnk!=nullptr)
 	delete(wnk);*/
 
@@ -576,7 +576,83 @@ void ifft_2d(Complexf *cm,u_int w,u_int h){
 	};*/
 }
 
+/**
+* æ±‚å–åŸºç¡€çš„å‚æ•°çš„å¹‚æ¬¡æ–¹ï¼Œä¸Šé¢
+* get base arg power of e
+*/
+Complexf *baseCmPow(Complexf *cm, int n, int p){
+	cm->setReal( cos(p * PI /n));
+	cm->setIm( sin(-p * PI / n));
+	return cm;
+}
 
+/**
+* ä¸€èˆ¬å½¢å¼çš„fft
+*/
+void fft_normal(Complexf *cm, int N){
+	u_int L = 1,tmpn = 0,M = N,tn = N * 2;
+	while (L < 2*N ){
+		L = L * 2;
+	} 
+
+	Complexf tempmul = Complexf();
+	Complexf *temp = (Complexf *)malloc(L * sizeof(Complexf));
+	
+	Complexf *temp2 = (Complexf *)malloc(L * sizeof(Complexf));
+	for (int i = 0; i < L; i++){
+		
+		if (i < N){
+			tmpn = i*i;
+			baseCmPow(&tempmul, N, tmpn);
+			temp[i].setData(tempmul);
+			temp[i] *= cm[i];
+
+			baseCmPow(&tempmul, N, -tmpn);
+			temp2[i].setData(tempmul);
+		}else{
+			if (i > L - N){
+				tmpn = (L - i)*(L - i);
+				baseCmPow(&tempmul, N, -tmpn);
+				temp2[i].setData(tempmul);
+			}else{
+				temp2[i].init();
+			}
+			temp[i].init();
+		}
+	}
+
+	fft_base2(temp, L);
+	fft_base2(temp2, L);
+	for (int i = 0; i < L;i++){
+		temp[i] *= temp2[i];
+	}
+
+	ifft_base2(temp, L);
+
+	for (int i = 0; i < N;i++){
+		tmpn = i*i;
+		baseCmPow(&tempmul, N, tmpn);
+		tempmul *= temp[i];
+		cm[i].setData(tempmul);
+	}
+	free(temp);
+	free(temp2);
+}
+/**
+* ä¸€èˆ¬å½¢å¼çš„ifft
+*/
+void ifft_normal(Complexf *cm, int N){
+	for (int i = 0; i<N; i++){
+		cm[i].setIm(-cm[i].getIm());
+	}
+
+	fft_normal(cm, N);
+
+	for (int i = 0; i<N; i++){
+		cm[i].setReal(cm[i].getReal() / N);
+		cm[i].setIm(-cm[i].getIm() / N);
+	}
+}
 
 
 
