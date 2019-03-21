@@ -46,3 +46,8 @@
 	float Complexf::abs(){
 		return sqrt(real * real + im * im);
 	}
+
+	void Complexf::init(){
+		real = 0;
+		im = 0;
+	}
